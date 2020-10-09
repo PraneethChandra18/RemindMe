@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/models/remainder.dart';
+import 'package:scheduler/pages/student/forms.dart';
 
 class Tasks extends StatefulWidget {
   @override
@@ -15,7 +16,9 @@ class _TasksState extends State<Tasks> {
       body: RemainderItems(),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: (){},
+        onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms()));
+        },
       ),
     );
   }
