@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/models/remainder.dart';
+import 'package:scheduler/pages/student/CompleteFeed.dart';
 import 'package:scheduler/pages/student/forms.dart';
 
 class Tasks extends StatefulWidget {
@@ -17,7 +18,7 @@ class _TasksState extends State<Tasks> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms()));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteFeed()));
         },
       ),
     );
