@@ -12,3 +12,13 @@ class Remainder {
   Remainder(this.title,this.details,this.by,this.date,this.startTime,this.endTime);
 
 }
+
+class FeedItem {
+  final String title;
+  final String by;
+  final String poster;
+  final String description;
+  final String link;
+
+  FeedItem(this.title,this.by,this.poster,this.description,this.link);
+}

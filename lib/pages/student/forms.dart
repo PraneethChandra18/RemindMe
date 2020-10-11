@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:scheduler/models/remainder.dart';
+import 'package:scheduler/models/models.dart';
 
 class Forms extends StatefulWidget{
   _Form createState() => _Form();
@@ -182,8 +182,8 @@ class _Form extends State<Forms>{
               RaisedButton(
                 color: Colors.blueAccent,
                 onPressed: (){
-                  var data = new Remainder(title.value.toString(),description.value.toString(), by.value.toString(), date.value.toString(), starttime.value.toString(), endtime.value.toString());
-                  print(data);
+                  var data = Remainder(title.text.toString(),description.text.toString(), by.text.toString(), date.text.toString(), starttime.text.toString(), endtime.text.toString());
+                  Navigator.pop(context,data);
                 },
                 child: Padding(
                   padding: EdgeInsets.all(10),
