@@ -3,12 +3,12 @@ import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/CompleteFeed.dart';
 
-class StudentFeed extends StatefulWidget {
+class ClubFeed extends StatefulWidget {
   @override
-  _StudentFeedState createState() => _StudentFeedState();
+  _ClubFeedState createState() => _ClubFeedState();
 }
 
-class _StudentFeedState extends State<StudentFeed> {
+class _ClubFeedState extends State<ClubFeed> {
 
   List<FeedItem> feed = [];
 

@@ -8,7 +8,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:269222200471:android:13805d167404a0a7c695d2",
+        "mobilesdk_app_id": "1:269222200471:android:2bcfb4e7482b553ec695d2",
         "android_client_info": {
           "package_name": "com.example.scheduler"
         }
@@ -30,6 +30,13 @@
             {
               "client_id": "269222200471-26dvos77uo1n1miisov0rc14295uoebv.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "269222200471-ct14f11t4jpu9hh83gats265usg0kv5v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.scheduler"
+              }
             }
           ]
         }

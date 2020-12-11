@@ -4,12 +4,12 @@ import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/CompleteFeed.dart';
 import 'package:scheduler/pages/student/forms.dart';
 
-class StudentTasks extends StatefulWidget {
+class ClubTasks extends StatefulWidget {
   @override
-  _StudentTasksState createState() => _StudentTasksState();
+  _ClubTasksState createState() => _ClubTasksState();
 }
 
-class _StudentTasksState extends State<StudentTasks> {
+class _ClubTasksState extends State<ClubTasks> {
 
   List<Remainder> remainders = [];
 

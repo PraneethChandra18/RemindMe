@@ -22,3 +22,12 @@ class FeedItem {
 
   FeedItem(this.title,this.by,this.poster,this.description,this.link);
 }
+
+class Club {
+  final String mailId;
+  final String name;
+  final String logo;
+  final String description;
+
+  Club(this.mailId,this.name,this.logo,this.description);
+}

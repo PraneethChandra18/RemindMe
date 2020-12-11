@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scheduler/authenticate/normalauth.dart';
 
 class Authenticate extends StatefulWidget {
   @override
@@ -6,8 +7,18 @@ class Authenticate extends StatefulWidget {
 }
 
 class _AuthenticateState extends State<Authenticate> {
+
+  var signInPage = true;
+
+  void togglesignInPage()
+  {
+    setState(() {
+      signInPage = !signInPage ;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return signInPage ? SignIn(toggle: togglesignInPage) : Register(toggle: togglesignInPage);
   }
 }

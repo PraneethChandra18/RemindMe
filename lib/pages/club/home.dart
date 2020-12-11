@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:scheduler/authenticate/authfunctions.dart';
-import 'package:scheduler/pages/student/clubs.dart';
-import 'package:scheduler/pages/student/feed.dart';
-import 'package:scheduler/pages/student/tasks.dart';
+import 'package:scheduler/bridges/constants.dart';
+import 'package:scheduler/pages/club/feed.dart';
+import 'package:scheduler/pages/club/tasks.dart';
 import 'package:provider/provider.dart';
 
-class StudentThemeChanger extends StatefulWidget {
+class ClubThemeChanger extends StatefulWidget {
   @override
-  _StudentThemeChangerState createState() => _StudentThemeChangerState();
+  _ClubThemeChangerState createState() => _ClubThemeChangerState();
 }
 
-class _StudentThemeChangerState extends State<StudentThemeChanger> {
+class _ClubThemeChangerState extends State<ClubThemeChanger> {
 
   var darkmode = false;
 
@@ -45,7 +45,7 @@ class _StudentThemeChangerState extends State<StudentThemeChanger> {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: DefaultTabController(
-        length: 3,
+        length: 2,
         child: Scaffold(
           appBar: AppBar(
             title: Text("Scheduler"),
@@ -62,23 +62,21 @@ class _StudentThemeChangerState extends State<StudentThemeChanger> {
                 {
                   context.read<AuthService>().signOut();
                 },
-                child: Text("StudentSignOut"),
+                child: Text("SignOut"),
               ),
             ],
             bottom: TabBar(
               tabs: [
                 Tab(child: Text("Tasks")),
                 Tab(child: Text("Feed")),
-                Tab(child: Text("Clubs")),
               ],
             ),
           ),
           body: SafeArea(
             child: TabBarView(
               children: [
-                StudentTasks(),
-                StudentFeed(),
-                Clubs(),
+                ClubTasks(),
+                ClubFeed(),
               ],
             ),
           ),

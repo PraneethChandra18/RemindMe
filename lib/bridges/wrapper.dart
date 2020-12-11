@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:scheduler/authenticate/auth.dart';
-
-import 'package:scheduler/bridges/constants.dart';
+import 'package:scheduler/models/userdetails.dart';
+import 'package:scheduler/pages/club/home.dart';
 import 'package:scheduler/pages/student/home.dart';
+import 'package:provider/provider.dart';
 
 class Wrapper extends StatefulWidget {
   @override
@@ -11,11 +13,30 @@ class Wrapper extends StatefulWidget {
 
 class _WrapperState extends State<Wrapper> {
 
-  var authenticated = true;
   @override
   Widget build(BuildContext context) {
 
-    return authenticated ? ThemeChanger() : Authenticate();
+    final user = context.watch<UserId>();
+
+
+    return user!=null ? StreamBuilder(
+        stream: FirebaseFirestore.instance.collection("Users")
+            .doc(user.uid)
+            .snapshots(),
+        builder: (BuildContext context,
+            AsyncSnapshot<DocumentSnapshot>snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            final userData = snapshot.data.data();
+            if (userData['role'] == "Student")
+              return StudentThemeChanger();
+            else
+              return ClubThemeChanger();
+          }
+          return Material(child: Center(child: CircularProgressIndicator(),),);
+        },
+
+      ): Authenticate();
+
   }
 }
 
