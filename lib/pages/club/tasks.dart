@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/models/models.dart';
-import 'package:scheduler/pages/student/CompleteFeed.dart';
 import 'package:scheduler/pages/student/forms.dart';
 
 class ClubTasks extends StatefulWidget {
@@ -22,9 +20,12 @@ class _ClubTasksState extends State<ClubTasks> {
         child: Icon(Icons.add),
         onPressed: () async {
           var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms()));
-          setState(() {
-            remainders.add(newitem);
-          });
+          if(newitem!=null)
+            {
+              setState(() {
+                remainders.add(newitem);
+              });
+            }
         },
       ),
     );

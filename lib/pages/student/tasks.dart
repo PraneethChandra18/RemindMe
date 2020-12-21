@@ -1,7 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/models/models.dart';
-import 'package:scheduler/pages/student/CompleteFeed.dart';
 import 'package:scheduler/pages/student/forms.dart';
 
 class StudentTasks extends StatefulWidget {
@@ -11,22 +10,56 @@ class StudentTasks extends StatefulWidget {
 
 class _StudentTasksState extends State<StudentTasks> {
 
-  List<Remainder> remainders = [];
-
+  List<Remainder> remainders = new List();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // backgroundColor: Colors.grey[500],
-      body: RemainderItems(remainders),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () async {
-          var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms()));
-          setState(() {
-            remainders.add(newitem);
-          });
-        },
-      ),
+    return FutureBuilder(
+      future: FirebaseFirestore.instance.collection("reminders").get(),
+      builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
+        if(snapshot.connectionState!=ConnectionState.done)
+        {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        else
+        {
+          remainders.clear();
+          List<QueryDocumentSnapshot> data = snapshot.data.docs;
+          for(int i=0;i<data.length;i++)
+          {
+            Remainder rem = Remainder(
+                data[i].get('title'),
+                data[i].get('subtitle'),
+                data[i].get('details'),
+                data[i].get('by'),
+                data[i].get('date'),
+                data[i].get('startTime'),
+                data[i].get('endTime')
+            );
+            print(rem);
+            remainders.add(rem);
+          }
+          return Scaffold(
+            // backgroundColor: Colors.grey[500],
+            body: RemainderItems(remainders),
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () async {
+                var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms()));
+                if(newitem!=null)
+                {
+                  setState(() {
+                    remainders.add(newitem);
+                  });
+                }
+              },
+            ),
+          );
+        }
+      }
     );
   }
 }
