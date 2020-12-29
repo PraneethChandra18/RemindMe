@@ -50,6 +50,9 @@ class _Form extends State<Forms>{
   }
   @override
   void initState() {
+    selectedClub = null;
+    clubnames = new List();
+    clubDropdown = new List();
     clubDropdown = buildDropDownMenuItems(clubnames);
     super.initState();
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/CompleteFeed.dart';
 
@@ -46,7 +45,7 @@ class _FeedListItemState extends State<FeedListItem> {
       child: GestureDetector(
         onLongPress: (){print("Long pressed!");},
         child: ListTile(
-          onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteFeed()));},
+          onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteFeed(widget.feedItem)));},
           title: Text(widget.feedItem.title),
           trailing: Text(
             "Info",

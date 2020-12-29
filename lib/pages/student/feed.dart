@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/CompleteFeed.dart';
+
+import 'FeedForm.dart';
 
 class StudentFeed extends StatefulWidget {
   @override
@@ -18,11 +20,55 @@ class _StudentFeedState extends State<StudentFeed> {
     // FeedItem f = FeedItem("a","b","c","d","e");
     // feed.add(f);
 
-    return Scaffold(
-      body: ListView.builder(
-        itemCount: feed.length,
-        itemBuilder: (context,index) => FeedListItem(feed[index]),
-      ),
+    return FutureBuilder(
+        future: FirebaseFirestore.instance.collection("feed").get(),
+        builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
+          if(snapshot.connectionState!=ConnectionState.done)
+          {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          else
+          {
+            feed.clear();
+            List<QueryDocumentSnapshot> data = snapshot.data.docs;
+            for(int i=0;i<data.length;i++)
+            {
+              FeedItem rem = FeedItem(
+                  data[i].get('title'),
+                  data[i].get('by'),
+                  data[i].get('poster'),
+                  data[i].get('details'),
+                  data[i].get('link')
+              );
+              print(rem);
+              feed.add(rem);
+            }
+            return Scaffold(
+              floatingActionButton: FloatingActionButton(
+                child: IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () async {
+                    var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm()));
+                    if(newitem!=null)
+                    {
+                      setState(() {
+                        feed.add(newitem);
+                      });
+                    }
+                  },
+                ),
+              ),
+              body: ListView.builder(
+                itemCount: feed.length,
+                itemBuilder: (context,index) => FeedListItem(feed[index]),
+              ),
+            );
+          }
+        }
     );
   }
 }
@@ -46,7 +92,7 @@ class _FeedListItemState extends State<FeedListItem> {
       child: GestureDetector(
         onLongPress: (){print("Long pressed!");},
         child: ListTile(
-          onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteFeed()));},
+          onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteFeed(widget.feedItem)));},
           title: Text(widget.feedItem.title),
           trailing: Text(
             "Info",
