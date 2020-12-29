@@ -54,7 +54,7 @@ class _StudentFeedState extends State<StudentFeed> {
             return Scaffold(
               floatingActionButton: FloatingActionButton(
                 onPressed: () async {
-                  var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm()));
+                  var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm(widget.userData)));
                   if(newitem!=null)
                   {
                     setState(() {
