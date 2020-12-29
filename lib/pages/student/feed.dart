@@ -53,17 +53,17 @@ class _StudentFeedState extends State<StudentFeed> {
             }
             return Scaffold(
               floatingActionButton: FloatingActionButton(
-                child: IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () async {
-                    var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm()));
-                    if(newitem!=null)
-                    {
-                      setState(() {
-                        feed.add(newitem);
-                      });
-                    }
-                  },
+                onPressed: () async {
+                  var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm()));
+                  if(newitem!=null)
+                  {
+                    setState(() {
+                      feed.add(newitem);
+                    });
+                  }
+                },
+                child: Icon(
+                  Icons.add,
                 ),
               ),
               body: ListView.builder(
