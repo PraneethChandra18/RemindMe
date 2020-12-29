@@ -4,6 +4,10 @@ import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/CompleteFeed.dart';
 
 class ClubFeed extends StatefulWidget {
+
+  final userData;
+  ClubFeed(this.userData);
+
   @override
   _ClubFeedState createState() => _ClubFeedState();
 }

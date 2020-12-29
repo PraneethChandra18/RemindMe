@@ -6,6 +6,10 @@ import 'package:scheduler/pages/student/tasks.dart';
 import 'package:provider/provider.dart';
 
 class StudentThemeChanger extends StatefulWidget {
+
+  final userData;
+  StudentThemeChanger(this.userData);
+
   @override
   _StudentThemeChangerState createState() => _StudentThemeChangerState();
 }
@@ -67,8 +71,8 @@ class _StudentThemeChangerState extends State<StudentThemeChanger> {
             ],
             bottom: TabBar(
               tabs: [
-                Tab(child: Text("Tasks")),
-                Tab(child: Text("Feed")),
+                Tab(child: Text("Reminders")),
+                Tab(child: Text("Posts")),
                 Tab(child: Text("Clubs")),
               ],
             ),
@@ -76,8 +80,8 @@ class _StudentThemeChangerState extends State<StudentThemeChanger> {
           body: SafeArea(
             child: TabBarView(
               children: [
-                StudentTasks(),
-                StudentFeed(),
+                StudentTasks(widget.userData),
+                StudentFeed(widget.userData),
                 Clubs(),
               ],
             ),

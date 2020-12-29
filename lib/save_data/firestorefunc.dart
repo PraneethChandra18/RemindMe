@@ -17,7 +17,7 @@ class FireStoreService {
     return user != null ? ClubDetails(uid: user.uid, username: username, role: role, logo: logo) : null;
   }
 
-  Future saveUserDetails({UserId user, String username, String role, String logo}) async {
+  Future saveUserDetails({UserId user, String username, String role, String logo, List<String> subscribed}) async {
 
     Map<String,dynamic> userData;
     if(role=="Student")
@@ -26,6 +26,7 @@ class FireStoreService {
         "username": username,
         "uid": user.uid,
         "role": role,
+        "subscribed": subscribed,
       };
     }
     else if(role=="Club")
@@ -45,13 +46,15 @@ class FireStoreService {
     return "Saved";
   }
 
-  Future saveClubDetails({UserId user, String username, String role, String logo}) async {
+  Future saveClubDetails({UserId user, String mailId, String username, String role, String logo, String description}) async {
 
     Map<String,dynamic> userData = {
+      "mailId": mailId,
       "username": username,
       "uid": user.uid,
       "role": role,
       "logo": logo,
+      "description": description,
     };
 
     final userRef = _db.collection("Clubs").doc(user.uid);

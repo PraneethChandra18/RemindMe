@@ -28,9 +28,9 @@ class _WrapperState extends State<Wrapper> {
           if (snapshot.hasData && snapshot.data != null) {
             final userData = snapshot.data.data();
             if (userData['role'] == "Student")
-              return StudentThemeChanger();
+              return StudentThemeChanger(userData);
             else
-              return ClubThemeChanger();
+              return ClubThemeChanger(userData);
           }
           return Material(child: Center(child: CircularProgressIndicator(),),);
         },

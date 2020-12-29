@@ -6,6 +6,10 @@ import 'package:scheduler/pages/club/tasks.dart';
 import 'package:provider/provider.dart';
 
 class ClubThemeChanger extends StatefulWidget {
+
+  final userData;
+  ClubThemeChanger(this.userData);
+
   @override
   _ClubThemeChangerState createState() => _ClubThemeChangerState();
 }
@@ -67,16 +71,16 @@ class _ClubThemeChangerState extends State<ClubThemeChanger> {
             ],
             bottom: TabBar(
               tabs: [
-                Tab(child: Text("Tasks")),
-                Tab(child: Text("Feed")),
+                Tab(child: Text("Reminders")),
+                Tab(child: Text("Posts")),
               ],
             ),
           ),
           body: SafeArea(
             child: TabBarView(
               children: [
-                ClubTasks(),
-                ClubFeed(),
+                ClubTasks(widget.userData),
+                ClubFeed(widget.userData),
               ],
             ),
           ),

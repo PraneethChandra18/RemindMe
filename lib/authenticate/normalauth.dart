@@ -131,26 +131,25 @@ class _SignInState extends State<SignIn> {
 
               SizedBox(height: 20.0),
 
-              Center(
-                child: Row(
-                  children: [
-                    Text(
-                      "Didn't have an account? ",
-                      style: TextStyle(
-                        fontSize: size.width * 0.04,
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Didn't have an account? ",
+                    style: TextStyle(
+                      fontSize: size.width * 0.04,
                     ),
+                  ),
 
-                    GestureDetector(
-                      onTap: widget.toggle,
-                      child: Text(
-                        "SignUp",
-                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: size.width * 0.04),
+                  GestureDetector(
+                    onTap: widget.toggle,
+                    child: Text(
+                      "SignUp",
+                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: size.width * 0.04),
 
-                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               )
             ],
           ),
@@ -203,6 +202,7 @@ class _RegisterState extends State<Register> {
   String role;
   String username;
   var logo;
+  String description;
   bool visibility = false;
   String error='';
 
@@ -423,6 +423,25 @@ class _RegisterState extends State<Register> {
                             });
                           },
                         ),
+
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: "Description",
+                            labelText: "Description",
+                            fillColor: Colors.white,
+                            filled: true,
+
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.lightBlueAccent,width: 2.0),
+                              borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                            ),
+                          ),
+                          onChanged: (val){
+                            setState(() {
+                              description = val;
+                            });
+                          },
+                        ),
                       ],
                     ) : Container()
                     )
@@ -453,9 +472,10 @@ class _RegisterState extends State<Register> {
                               });
                             }
                             else{
-                              dynamic userDetails = await _fss.saveUserDetails(user: result, username: username, role: role, logo: logo);
+                              List<String> subscribed = new List();
+                              dynamic userDetails = await _fss.saveUserDetails(user: result, username: username, role: role, logo: logo, subscribed: subscribed);
 
-                              if(role=="Club") dynamic clubDetails = await _fss.saveClubDetails(user: result, username: username, role: role, logo: logo);
+                              if(role=="Club") dynamic clubDetails = await _fss.saveClubDetails(user: result, mailId: email, username: username, role: role, logo: logo, description: description);
                             }
                           }
                         }
@@ -473,9 +493,10 @@ class _RegisterState extends State<Register> {
               ),
 
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Already have an account?",
+                    "Already have an account? ",
                     style: TextStyle(fontSize: size.width * 0.04),
                   ),
 

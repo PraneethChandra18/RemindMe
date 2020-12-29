@@ -22,10 +22,11 @@ class FeedItem {
 }
 
 class Club {
+  final String uid;
   final String mailId;
-  final String name;
+  final String username;
   final String logo;
   final String description;
 
-  Club(this.mailId,this.name,this.logo,this.description);
+  Club(this.uid,this.mailId,this.username,this.logo,this.description);
 }

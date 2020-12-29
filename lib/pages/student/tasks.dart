@@ -4,6 +4,10 @@ import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/forms.dart';
 
 class StudentTasks extends StatefulWidget {
+
+  final userData;
+  StudentTasks(this.userData);
+
   @override
   _StudentTasksState createState() => _StudentTasksState();
 }
@@ -48,7 +52,7 @@ class _StudentTasksState extends State<StudentTasks> {
             floatingActionButton: FloatingActionButton(
               child: Icon(Icons.add),
               onPressed: () async {
-                var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms()));
+                var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms(widget.userData)));
                 if(newitem!=null)
                 {
                   setState(() {
