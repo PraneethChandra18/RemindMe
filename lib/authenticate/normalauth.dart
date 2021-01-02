@@ -1,4 +1,9 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/painting.dart';
 import 'package:scheduler/authenticate/authfunctions.dart';
 import 'package:flutter/material.dart';
@@ -189,7 +194,7 @@ class Register extends StatefulWidget {
   @override
   _RegisterState createState() => _RegisterState();
 }
-
+String logo;
 class _RegisterState extends State<Register> {
   final AuthService _auth = AuthService();
   final FireStoreService _fss = FireStoreService();
@@ -201,7 +206,6 @@ class _RegisterState extends State<Register> {
   String confirmPassword;
   String role;
   String username;
-  var logo;
   String description;
   bool visibility = false;
   String error='';
@@ -424,6 +428,46 @@ class _RegisterState extends State<Register> {
                           },
                         ),
 
+                      /*  RaisedButton(
+                          color: Colors.blueAccent,
+                          onPressed: () async {
+                            String result = await sendDocument();
+                            if(result!=null)
+                            {
+                              setState(() {
+                                logo = result;
+                              });
+                            }
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text("Upload Image",style: TextStyle(color: Colors.white),),
+                          ),
+                        ),
+                        (logo==null)?Container():CachedNetworkImage(
+                          placeholder: (context, url) => Container(
+                            child: CircularProgressIndicator(
+                            ),
+                            width: 50.0,
+                            height: 50.0,
+                            padding: EdgeInsets.all(70.0),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              Material(
+                                child: Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Center(
+                                    child: Icon(Icons.warning,color: Colors.black,size: 100,),
+                                  ),
+                                ),
+                                clipBehavior: Clip.hardEdge,
+                              ),
+                          imageUrl: logo,
+                          width: 50.0,
+                          height: 50.0,
+                          fit: BoxFit.cover,
+                        ),*/
                         TextFormField(
                           decoration: InputDecoration(
                             hintText: "Description",
@@ -463,7 +507,7 @@ class _RegisterState extends State<Register> {
                           });
                         }
                         else {
-                          if (_formKey.currentState.validate()) {
+                          if (_formKey.currentState.validate()) { //add check for logo not null
                             dynamic result = await _auth.registerWithEmailAndPassword(email, password);
                             if (result == null) {
                               setState(() {
@@ -541,5 +585,42 @@ class _RegisterState extends State<Register> {
       ),
     );
 
+  }
+  Future<String> sendDocument() async {
+    File documentToUpload;
+    documentToUpload = await documentSender();
+    if(documentToUpload==null)
+      return null;
+    else
+    {
+      String message = await uploadFile(documentToUpload);
+      if(message==null)
+        return null;
+      else
+      {
+        return message;
+      }
+    }
+  }
+
+  Future<File> documentSender(){
+    return FilePicker.getFile();
+  }
+
+  Future<String> uploadFile(documentFile) async {
+    String imageUrl;
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference = FirebaseStorage.instance.ref().child(fileName);
+    await reference.putFile(documentFile).then((storageTaskSnapshot) async {
+      await storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl){
+        imageUrl = downloadUrl;
+        print(downloadUrl);
+      },onError: (err){
+        print(err.toString());
+      });
+    },onError: (err){
+      print("error");
+    });
+    return imageUrl;
   }
 }
