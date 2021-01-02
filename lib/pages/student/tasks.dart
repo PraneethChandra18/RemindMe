@@ -15,7 +15,7 @@ class StudentTasks extends StatefulWidget {
 bool loading = true;
 class _StudentTasksState extends State<StudentTasks> {
   User user = FirebaseAuth.instance.currentUser;
-  List<Remainder> remainders = new List();
+  List<Reminder> remainders = new List();
   List<dynamic> subscribed;
   void setReminders() async{
     DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection("Users").doc(user.uid).get();
@@ -27,7 +27,7 @@ class _StudentTasksState extends State<StudentTasks> {
         List<QueryDocumentSnapshot> data = querySnapshot.docs;
         for(int j=0;j<data.length;j++)
           {
-            Remainder rem = Remainder(
+            Reminder rem = Reminder(
                 data[j].get('title'),
                 data[j].get('subtitle'),
                 data[j].get('details'),
@@ -60,7 +60,7 @@ class _StudentTasksState extends State<StudentTasks> {
       ),
     ):Scaffold(
       // backgroundColor: Colors.grey[500],
-      body: RemainderItems(remainders),
+      body: ReminderItems(remainders),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
@@ -76,16 +76,16 @@ class _StudentTasksState extends State<StudentTasks> {
     );
   }
 }
-class RemainderItems extends StatefulWidget {
+class ReminderItems extends StatefulWidget {
 
-  final List<Remainder> remainders;
-  RemainderItems(this.remainders);
+  final List<Reminder> remainders;
+  ReminderItems(this.remainders);
 
   @override
-  _RemainderItemsState createState() => _RemainderItemsState();
+  _ReminderItemsState createState() => _ReminderItemsState();
 }
 
-class _RemainderItemsState extends State<RemainderItems> {
+class _ReminderItemsState extends State<ReminderItems> {
 
   @override
   Widget build(BuildContext context) {
@@ -93,21 +93,21 @@ class _RemainderItemsState extends State<RemainderItems> {
 
     return ListView.builder(
       itemCount: widget.remainders.length,
-      itemBuilder: (context,index) => RemainderListItem(widget.remainders[index]),
+      itemBuilder: (context,index) => ReminderListItem(widget.remainders[index]),
     );
   }
 }
 
-class RemainderListItem extends StatefulWidget {
+class ReminderListItem extends StatefulWidget {
 
-  final Remainder remainder;
-  RemainderListItem(this.remainder);
+  final Reminder remainder;
+  ReminderListItem(this.remainder);
 
   @override
-  _RemainderListItemState createState() => _RemainderListItemState();
+  _ReminderListItemState createState() => _ReminderListItemState();
 }
 
-class _RemainderListItemState extends State<RemainderListItem> {
+class _ReminderListItemState extends State<ReminderListItem> {
   @override
   Widget build(BuildContext context) {
 
