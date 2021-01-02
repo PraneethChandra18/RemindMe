@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scheduler/authenticate/authfunctions.dart';
-import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/pages/club/feed.dart';
 import 'package:scheduler/pages/club/tasks.dart';
 import 'package:provider/provider.dart';
@@ -28,23 +27,23 @@ class _ClubThemeChangerState extends State<ClubThemeChanger> {
   @override
   Widget build(BuildContext context) {
 
-    var custom_brightness = Brightness.light;
-    var custom_float_foreground = Colors.white;
-    var customtextColor = Colors.black;
+    var customBrightness = Brightness.light;
+    var customFloatForeground = Colors.white;
+    var customTextColor = Colors.black;
 
     if(darkmode==true) {
-      custom_brightness = Brightness.dark;
-      custom_float_foreground = Colors.black;
-      // customtextColor = Colors.white;
+      customBrightness = Brightness.dark;
+      customFloatForeground = Colors.black;
+      // customTextColor = Colors.white;
     }
 
     return MaterialApp(
       title: 'Scheduler',
       theme: ThemeData(
-        brightness: custom_brightness,
-        textTheme: Theme.of(context).textTheme.apply(bodyColor: customtextColor),
+        brightness: customBrightness,
+        textTheme: Theme.of(context).textTheme.apply(bodyColor: customTextColor),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
-          foregroundColor: custom_float_foreground,
+          foregroundColor: customFloatForeground,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),

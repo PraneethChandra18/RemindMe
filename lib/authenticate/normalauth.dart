@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/painting.dart';
 import 'package:scheduler/authenticate/authfunctions.dart';
 import 'package:flutter/material.dart';
@@ -222,7 +221,7 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
 
     var size = MediaQuery.of(context).size;
-    List<String> UserType = ["--SELECT--","Student", "Club"];
+    List<String> userType = ["--SELECT--","Student", "Club"];
 
     var card = new Card(
       color: Colors.white,
@@ -330,8 +329,8 @@ class _RegisterState extends State<Register> {
 
                     DropdownButtonFormField(
                       hint: Text('Select your role'),
-                      value: UserType[0],
-                      items: UserType.map((label) => DropdownMenuItem(
+                      value: userType[0],
+                      items: userType.map((label) => DropdownMenuItem(
                         child: Text(label),
                         value: label)).toList(),
                       onChanged: (val) {
@@ -473,9 +472,9 @@ class _RegisterState extends State<Register> {
                             }
                             else{
                               List<String> subscribed = new List();
-                              dynamic userDetails = await _fss.saveUserDetails(user: result, username: username, role: role, logo: logo, subscribed: subscribed);
+                              await _fss.saveUserDetails(user: result, username: username, role: role, logo: logo, subscribed: subscribed);
 
-                              if(role=="Club") dynamic clubDetails = await _fss.saveClubDetails(user: result, mailId: email, username: username, role: role, logo: logo, description: description);
+                              if(role=="Club") await _fss.saveClubDetails(user: result, mailId: email, username: username, role: role, logo: logo, description: description);
                             }
                           }
                         }

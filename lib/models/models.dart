@@ -1,4 +1,4 @@
-class Remainder {
+class Reminder {
 
   final String title;
   final String subtitle;
@@ -7,7 +7,7 @@ class Remainder {
   final String by;
   final String startTime,endTime;
 
-  Remainder(this.title,this.subtitle,this.details,this.by,this.date,this.startTime,this.endTime);
+  Reminder(this.title,this.subtitle,this.details,this.by,this.date,this.startTime,this.endTime);
 
 }
 

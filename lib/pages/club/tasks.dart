@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/forms.dart';
@@ -13,40 +14,89 @@ class ClubTasks extends StatefulWidget {
 
 class _ClubTasksState extends State<ClubTasks> {
 
-  List<Remainder> remainders = [];
+  List<Reminder> remainders = [];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // backgroundColor: Colors.grey[500],
-      body: RemainderItems(remainders),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () async {
-          var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms(widget.userData)));
-          if(newitem!=null)
-            {
-              setState(() {
-                remainders.add(newitem);
-              });
-            }
-        },
-      ),
+    return FutureBuilder(
+        future: FirebaseFirestore.instance.collection("Clubs").get(),
+        builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot1){
+          if(snapshot1.connectionState!=ConnectionState.done)
+          {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          else
+          {
+            List<QueryDocumentSnapshot> data1 = snapshot1.data.docs;
+            remainders.clear();
+            return FutureBuilder(
+                future: FirebaseFirestore.instance.collection("data").doc(data1[0]["uid"]).collection("reminders").get(),
+                builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
+                  if(snapshot.connectionState!=ConnectionState.done)
+                  {
+                    return Scaffold(
+                      body: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                  else
+                  {
+                    List<QueryDocumentSnapshot> data = snapshot.data.docs;
+                    for(int i=0;i<data.length;i++)
+                    {
+                      Reminder rem = Reminder(
+                          data[i].get('title'),
+                          data[i].get('subtitle'),
+                          data[i].get('details'),
+                          data[i].get('by'),
+                          data[i].get('date'),
+                          data[i].get('startTime'),
+                          data[i].get('endTime')
+                      );
+                      print(rem);
+                      remainders.add(rem);
+                    }
+                    return Scaffold(
+                      // backgroundColor: Colors.grey[500],
+                      body: ReminderItems(remainders),
+                      floatingActionButton: FloatingActionButton(
+                        child: Icon(Icons.add),
+                        onPressed: () async {
+                          var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms(widget.userData)));
+                          if(newitem!=null)
+                          {
+                            setState(() {
+                              remainders.add(newitem);
+                            });
+                          }
+                        },
+                      ),
+                    );
+                  }
+                }
+            );
+          }
+        }
     );
   }
 }
 
 
-class RemainderItems extends StatefulWidget {
+class ReminderItems extends StatefulWidget {
 
-  final List<Remainder> remainders;
-  RemainderItems(this.remainders);
+  final List<Reminder> remainders;
+  ReminderItems(this.remainders);
 
   @override
-  _RemainderItemsState createState() => _RemainderItemsState();
+  _ReminderItemsState createState() => _ReminderItemsState();
 }
 
-class _RemainderItemsState extends State<RemainderItems> {
+class _ReminderItemsState extends State<ReminderItems> {
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +111,7 @@ class _RemainderItemsState extends State<RemainderItems> {
 
 class RemainderListItem extends StatefulWidget {
 
-  final Remainder remainder;
+  final Reminder remainder;
   RemainderListItem(this.remainder);
 
   @override

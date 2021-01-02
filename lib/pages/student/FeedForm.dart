@@ -53,7 +53,7 @@ class _FeedForm extends State<FeedForm>{
   }
   @override
   Widget build(BuildContext context) {
-    CollectionReference users = FirebaseFirestore.instance.collection('Clubs');
+    // CollectionReference users = FirebaseFirestore.instance.collection('Clubs');
     return SafeArea(
         child: WillPopScope(
           onWillPop: (){
@@ -204,7 +204,9 @@ class _FeedForm extends State<FeedForm>{
                         color: Colors.blueAccent,
                         onPressed: () async {
                           if(_formkey.currentState.validate()&&poster!=null){
-                            var data = FeedItem(title.text.toString(),widget.userData['username'], poster, description.text.toString(), link.text.toString());
+                            var data;
+                            if(widget.userData["role"] == "Club") data = FeedItem(title.text.toString(),widget.userData['username'], poster, description.text.toString(), link.text.toString());
+                            else data = FeedItem(title.text.toString(), "Personal", poster, description.text.toString(), link.text.toString());
                             await addDataToFirebase(data);
                             Navigator.pop(context,data);
                           }

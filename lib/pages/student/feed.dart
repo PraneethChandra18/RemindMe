@@ -16,7 +16,7 @@ class StudentFeed extends StatefulWidget {
 
 class _StudentFeedState extends State<StudentFeed> {
 
-  List<FeedItem> feed = [];
+  List<FeedItem> feed = new List();
 
   @override
   Widget build(BuildContext context) {

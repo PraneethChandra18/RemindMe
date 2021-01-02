@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:scheduler/bridges/constants.dart';
 import 'package:scheduler/models/models.dart';
+import 'package:scheduler/pages/student/clubDetails.dart';
 
 class Clubs extends StatefulWidget {
 
@@ -14,29 +12,6 @@ class Clubs extends StatefulWidget {
 class _ClubsState extends State<Clubs> {
 
   List<Club> clubs = new List();
-  User user = FirebaseAuth.instance.currentUser;
-
-  Future<void> addToSubscribed(String clubId) async {
-
-    DocumentReference docRef = FirebaseFirestore.instance.collection("Users").doc(user.uid);
-    DocumentSnapshot userData = await docRef.get();
-
-    List<String> subscribed = userData["subscribed"].cast<String>();
-    subscribed.add(clubId);
-
-    await docRef.set({
-      'role': userData['role'],
-      'uid': userData['uid'],
-      'username': userData['username'],
-      'subscribed': subscribed,
-    }).then((value) => Fluttertoast.showToast(msg: "Subscribed")).catchError((error) => Fluttertoast.showToast(msg: error.toString()));
-
-    setState(() {
-      var reload = true;
-    });
-
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +44,7 @@ class _ClubsState extends State<Clubs> {
             }
             return Scaffold(
               // backgroundColor: Colors.grey[500],
-              body: ClubItems(clubs, addToSubscribed),
+              body: ClubItems(clubs),
             );
           }
         }
@@ -80,8 +55,8 @@ class _ClubsState extends State<Clubs> {
 class ClubItems extends StatefulWidget {
 
   final List<Club> clubs;
-  final Function addToSubscribed;
-  ClubItems(this.clubs, this.addToSubscribed);
+  // final Function addToSubscribed;
+  ClubItems(this.clubs);
 
   @override
   _ClubItemsState createState() => _ClubItemsState();
@@ -94,7 +69,7 @@ class _ClubItemsState extends State<ClubItems> {
 
     return ListView.builder(
       itemCount: widget.clubs.length,
-      itemBuilder: (context,index) => ClubListItem(widget.clubs[index], widget.addToSubscribed),
+      itemBuilder: (context,index) => ClubListItem(widget.clubs[index]),
     );
   }
 }
@@ -102,8 +77,8 @@ class _ClubItemsState extends State<ClubItems> {
 class ClubListItem extends StatefulWidget {
 
   final Club club;
-  final Function addToSubscribed;
-  ClubListItem(this.club, this.addToSubscribed);
+  // final Function addToSubscribed;
+  ClubListItem(this.club);
 
   @override
   _ClubListItemState createState() => _ClubListItemState();
@@ -119,22 +94,24 @@ class _ClubListItemState extends State<ClubListItem> {
       child: GestureDetector(
         onLongPress: (){print("Long pressed!");},
         child: ListTile(
-          onTap: (){print('Tapped');},
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>ClubDetails(widget.club)));
+          },
           title: Text(widget.club.username),
-          trailing: FlatButton(
-            onPressed: null,
-            child: GestureDetector(
-              onTap: () async {
-                await widget.addToSubscribed(widget.club.uid);
-              },
-              child: Text(
-                  "Subscribe",
-                style: TextStyle(
-                  color: Colors.red,
-                ),
-              ),
-            ),
-          ),
+          // trailing: FlatButton(
+          //   onPressed: null,
+          //   child: GestureDetector(
+          //     onTap: () async {
+          //       await widget.addToSubscribed(widget.club.uid);
+          //     },
+          //     child: Text(
+          //         "Subscribe",
+          //       style: TextStyle(
+          //         color: Colors.red,
+          //       ),
+          //     ),
+          //   ),
+          // ),
           subtitle: Text(
                 widget.club.mailId,
                 style: TextStyle(fontWeight: FontWeight.bold),

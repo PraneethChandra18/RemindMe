@@ -4,7 +4,7 @@ import 'package:scheduler/models/models.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CompleteFeed extends StatefulWidget{
-  FeedItem feed;
+  final FeedItem feed;
   CompleteFeed(this.feed);
   @override
   State<StatefulWidget> createState() {

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -34,7 +33,7 @@ class _Form extends State<Forms>{
   //   });
   // }
 
-  Future<void> addDataToFirebase(Remainder data) async {
+  Future<void> addDataToFirebase(Reminder data) async {
     CollectionReference reminder = FirebaseFirestore.instance.collection("data").doc(widget.userData['uid']).collection("reminders");
     await reminder.add({
       'title': data.title,
@@ -53,7 +52,7 @@ class _Form extends State<Forms>{
   }
   @override
   Widget build(BuildContext context) {
-    CollectionReference users = FirebaseFirestore.instance.collection('Clubs');
+    // CollectionReference users = FirebaseFirestore.instance.collection('Clubs');
     return SafeArea(
         child: WillPopScope(
           onWillPop: (){
@@ -311,7 +310,10 @@ class _Form extends State<Forms>{
                         color: Colors.blueAccent,
                         onPressed: () async {
                           if(_formkey.currentState.validate()){
-                            var data = Remainder(title.text.toString(),subtitle.text.toString(),description.text.toString(), widget.userData['username'], date.text.toString(), starttime.text.toString(), endtime.text.toString());
+                            var data;
+                            if(widget.userData["role"] == "Club")
+                            data = Reminder(title.text.toString(),subtitle.text.toString(),description.text.toString(), widget.userData['username'], date.text.toString(), starttime.text.toString(), endtime.text.toString());
+                            else data = Reminder(title.text.toString(),subtitle.text.toString(),description.text.toString(), "Personal", date.text.toString(), starttime.text.toString(), endtime.text.toString());
                             await addDataToFirebase(data);
                             Navigator.pop(context,data);
                           }
