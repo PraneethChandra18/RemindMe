@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/forms.dart';
@@ -11,98 +12,102 @@ class StudentTasks extends StatefulWidget {
   @override
   _StudentTasksState createState() => _StudentTasksState();
 }
-
+bool loading = true;
 class _StudentTasksState extends State<StudentTasks> {
-
-  List<Reminder> remainders = new List();
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: FirebaseFirestore.instance.collection("reminders").get(),
-      builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
-        if(snapshot.connectionState!=ConnectionState.done)
-        {
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-        else
-        {
-          remainders.clear();
-          List<QueryDocumentSnapshot> data = snapshot.data.docs;
-          for(int i=0;i<data.length;i++)
+  User user = FirebaseAuth.instance.currentUser;
+  List<Remainder> remainders = new List();
+  List<dynamic> subscribed;
+  void setReminders() async{
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection("Users").doc(user.uid).get();
+    subscribed = documentSnapshot.get("subscribed");
+    remainders.clear();
+    for(int i=0;i<subscribed.length;i++)
+      {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i].toString()).collection("reminders").get();
+        List<QueryDocumentSnapshot> data = querySnapshot.docs;
+        for(int j=0;j<data.length;j++)
           {
-            Reminder rem = Reminder(
-                data[i].get('title'),
-                data[i].get('subtitle'),
-                data[i].get('details'),
-                data[i].get('by'),
-                data[i].get('date'),
-                data[i].get('startTime'),
-                data[i].get('endTime')
+            Remainder rem = Remainder(
+                data[j].get('title'),
+                data[j].get('subtitle'),
+                data[j].get('details'),
+                data[j].get('by'),
+                data[j].get('date'),
+                data[j].get('startTime'),
+                data[j].get('endTime')
             );
-            print(rem);
+            print(data[i].get("startTime"));
+            print(rem.startTime);
             remainders.add(rem);
           }
-          return Scaffold(
-            // backgroundColor: Colors.grey[500],
-            body: ReminderItems(remainders),
-            floatingActionButton: FloatingActionButton(
-              child: Icon(Icons.add),
-              onPressed: () async {
-                var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms(widget.userData)));
-                if(newitem!=null)
-                {
-                  setState(() {
-                    remainders.add(newitem);
-                  });
-                }
-              },
-            ),
-          );
-        }
       }
+    setState(() {
+      loading = false;
+    });
+  }
+  @override
+  void initState() {
+    loading = true;
+    subscribed = new List();
+    setReminders();
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return (loading==true)?Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    ):Scaffold(
+      // backgroundColor: Colors.grey[500],
+      body: RemainderItems(remainders),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () async {
+          var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms(widget.userData)));
+          if(newitem!=null)
+          {
+            setState(() {
+              remainders.add(newitem);
+            });
+          }
+        },
+      ),
     );
   }
 }
+class RemainderItems extends StatefulWidget {
 
-
-class ReminderItems extends StatefulWidget {
-
-  final List<Reminder> remainders;
-  ReminderItems(this.remainders);
+  final List<Remainder> remainders;
+  RemainderItems(this.remainders);
 
   @override
-  _ReminderItemsState createState() => _ReminderItemsState();
+  _RemainderItemsState createState() => _RemainderItemsState();
 }
 
-class _ReminderItemsState extends State<ReminderItems> {
+class _RemainderItemsState extends State<RemainderItems> {
 
   @override
   Widget build(BuildContext context) {
     // remainders.add(Remainder("A","B","C","D","E","F"));
 
     return ListView.builder(
-      // physics: const NeverScrollableScrollPhysics(),
-      // primary: false,
       itemCount: widget.remainders.length,
-      itemBuilder: (context,index) => ReminderListItem(widget.remainders[index]),
+      itemBuilder: (context,index) => RemainderListItem(widget.remainders[index]),
     );
   }
 }
 
-class ReminderListItem extends StatefulWidget {
+class RemainderListItem extends StatefulWidget {
 
-  final Reminder remainder;
-  ReminderListItem(this.remainder);
+  final Remainder remainder;
+  RemainderListItem(this.remainder);
 
   @override
-  _ReminderListItemState createState() => _ReminderListItemState();
+  _RemainderListItemState createState() => _RemainderListItemState();
 }
 
-class _ReminderListItemState extends State<ReminderListItem> {
+class _RemainderListItemState extends State<RemainderListItem> {
   @override
   Widget build(BuildContext context) {
 

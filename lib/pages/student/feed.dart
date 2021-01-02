@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/CompleteFeed.dart';
@@ -13,66 +14,72 @@ class StudentFeed extends StatefulWidget {
   @override
   _StudentFeedState createState() => _StudentFeedState();
 }
-
+bool loading = true;
 class _StudentFeedState extends State<StudentFeed> {
-
-  List<FeedItem> feed = new List();
-
+  User user = FirebaseAuth.instance.currentUser;
+  List<FeedItem> feed = [];
+  List<dynamic> subscribed;
+  void setReminders() async{
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection("Users").doc(user.uid).get();
+    subscribed = documentSnapshot.get("subscribed");
+    feed.clear();
+    for(int i=0;i<subscribed.length;i++)
+    {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i].toString()).collection("feed").get();
+      List<QueryDocumentSnapshot> data = querySnapshot.docs;
+      for(int j=0;j<data.length;j++)
+      {
+        FeedItem rem = FeedItem(
+            data[j].get('title'),
+            data[j].get('by'),
+            data[j].get('poster'),
+            data[j].get('details'),
+            data[j].get('link')
+        );
+        print(rem);
+        feed.add(rem);
+      }
+    }
+    setState(() {
+      loading = false;
+    });
+  }
+  @override
+  void initState() {
+    loading = true;
+    subscribed = new List();
+    setReminders();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
 
     // FeedItem f = FeedItem("a","b","c","d","e");
     // feed.add(f);
 
-    return FutureBuilder(
-        future: FirebaseFirestore.instance.collection("feed").get(),
-        builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
-          if(snapshot.connectionState!=ConnectionState.done)
+    return (loading==true)?Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    ):Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm(widget.userData)));
+          if(newitem!=null)
           {
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
+            setState(() {
+              feed.add(newitem);
+            });
           }
-          else
-          {
-            feed.clear();
-            List<QueryDocumentSnapshot> data = snapshot.data.docs;
-            for(int i=0;i<data.length;i++)
-            {
-              FeedItem rem = FeedItem(
-                  data[i].get('title'),
-                  data[i].get('by'),
-                  data[i].get('poster'),
-                  data[i].get('details'),
-                  data[i].get('link')
-              );
-              print(rem);
-              feed.add(rem);
-            }
-            return Scaffold(
-              floatingActionButton: FloatingActionButton(
-                onPressed: () async {
-                  var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm(widget.userData)));
-                  if(newitem!=null)
-                  {
-                    setState(() {
-                      feed.add(newitem);
-                    });
-                  }
-                },
-                child: Icon(
-                  Icons.add,
-                ),
-              ),
-              body: ListView.builder(
-                itemCount: feed.length,
-                itemBuilder: (context,index) => FeedListItem(feed[index]),
-              ),
-            );
-          }
-        }
+        },
+        child: Icon(
+          Icons.add,
+        ),
+      ),
+      body: ListView.builder(
+        itemCount: feed.length,
+        itemBuilder: (context,index) => FeedListItem(feed[index]),
+      ),
     );
   }
 }
