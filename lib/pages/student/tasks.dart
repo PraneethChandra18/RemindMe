@@ -85,6 +85,8 @@ class _ReminderItemsState extends State<ReminderItems> {
     // remainders.add(Remainder("A","B","C","D","E","F"));
 
     return ListView.builder(
+      // physics: const NeverScrollableScrollPhysics(),
+      // primary: false,
       itemCount: widget.remainders.length,
       itemBuilder: (context,index) => ReminderListItem(widget.remainders[index]),
     );
