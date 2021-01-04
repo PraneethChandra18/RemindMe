@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scheduler/models/models.dart';
 import 'package:scheduler/pages/student/forms.dart';
@@ -12,76 +13,106 @@ class ClubTasks extends StatefulWidget {
   _ClubTasksState createState() => _ClubTasksState();
 }
 
+bool loading = true;
 class _ClubTasksState extends State<ClubTasks> {
 
   List<Reminder> remainders = [];
+  User user = FirebaseAuth.instance.currentUser;
+
+  List<dynamic> subscribed;
+  void setReminders() async{
+    QuerySnapshot clubList = await FirebaseFirestore.instance.collection("Clubs").get();
+    subscribed = clubList.docs;
+    remainders.clear();
+    for(int i=0;i<subscribed.length;i++)
+    {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i]["uid"].toString()).collection("reminders").get();
+      List<QueryDocumentSnapshot> data = querySnapshot.docs;
+      for(int j=0;j<data.length;j++)
+      {
+        Reminder rem = Reminder(
+            data[j].get('title'),
+            data[j].get('subtitle'),
+            data[j].get('details'),
+            data[j].get('by'),
+            data[j].get('date'),
+            data[j].get('startTime'),
+            data[j].get('endTime')
+        );
+        remainders.add(rem);
+      }
+    }
+    setState(() {
+      loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    loading = true;
+    subscribed = new List();
+    setReminders();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: FirebaseFirestore.instance.collection("Clubs").get(),
-        builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot1){
-          if(snapshot1.connectionState!=ConnectionState.done)
-          {
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
+
+    var size = MediaQuery.of(context).size;
+    return (loading==true)?Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    ):Scaffold(
+      // backgroundColor: Colors.grey[500],
+      body: Column(
+        children: [
+          Row(
+            children: [
+              Spacer(),
+              Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 8, 0),
+                height: size.height*0.06,
+                alignment: AlignmentDirectional.center,
+                child: FlatButton(
+                  onPressed: null,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        color: Colors.blue,
+                      ),
+                      Text(
+                        " Filter",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            );
-          }
-          else
+            ],
+          ),
+          Expanded(
+            child: ReminderItems(remainders),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () async {
+          var newItem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms(widget.userData)));
+          if(newItem!=null)
           {
-            List<QueryDocumentSnapshot> data1 = snapshot1.data.docs;
-            remainders.clear();
-            return FutureBuilder(
-                future: FirebaseFirestore.instance.collection("data").doc(data1[0]["uid"]).collection("reminders").get(),
-                builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
-                  if(snapshot.connectionState!=ConnectionState.done)
-                  {
-                    return Scaffold(
-                      body: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-                  else
-                  {
-                    List<QueryDocumentSnapshot> data = snapshot.data.docs;
-                    for(int i=0;i<data.length;i++)
-                    {
-                      Reminder rem = Reminder(
-                          data[i].get('title'),
-                          data[i].get('subtitle'),
-                          data[i].get('details'),
-                          data[i].get('by'),
-                          data[i].get('date'),
-                          data[i].get('startTime'),
-                          data[i].get('endTime')
-                      );
-                      print(rem);
-                      remainders.add(rem);
-                    }
-                    return Scaffold(
-                      // backgroundColor: Colors.grey[500],
-                      body: ReminderItems(remainders),
-                      floatingActionButton: FloatingActionButton(
-                        child: Icon(Icons.add),
-                        onPressed: () async {
-                          var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>Forms(widget.userData)));
-                          if(newitem!=null)
-                          {
-                            setState(() {
-                              remainders.add(newitem);
-                            });
-                          }
-                        },
-                      ),
-                    );
-                  }
-                }
-            );
+            setState(() {
+              remainders.add(newItem);
+            });
           }
-        }
+        },
+      ),
     );
   }
 }

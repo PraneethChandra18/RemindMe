@@ -17,68 +17,146 @@ class StudentFeed extends StatefulWidget {
 bool loading = true;
 class _StudentFeedState extends State<StudentFeed> {
   User user = FirebaseAuth.instance.currentUser;
-  List<FeedItem> feed = [];
+  List<FeedItem> feed = new List();
   List<dynamic> subscribed;
+
   void setReminders() async{
-    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection("Users").doc(user.uid).get();
-    subscribed = documentSnapshot.get("subscribed");
-    feed.clear();
+
+    if(_radioValue==1) {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection("Users").doc(user.uid).get();
+      subscribed = documentSnapshot.get("subscribed");
+    }
+    else {
+      subscribed.add(user.uid);
+    }
+
     for(int i=0;i<subscribed.length;i++)
     {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i].toString()).collection("feed").get();
       List<QueryDocumentSnapshot> data = querySnapshot.docs;
       for(int j=0;j<data.length;j++)
       {
-        FeedItem rem = FeedItem(
+        FeedItem f = FeedItem(
             data[j].get('title'),
             data[j].get('by'),
             data[j].get('poster'),
             data[j].get('details'),
             data[j].get('link')
         );
-        print(rem);
-        feed.add(rem);
+
+        feed.add(f);
       }
     }
     setState(() {
       loading = false;
     });
   }
+
+  int _radioValue;
+
+  void _handleRadioValueChange(int value) {
+    setState(() {
+      _radioValue = value;
+      loading = true;
+      feed.clear();
+      subscribed.clear();
+      setReminders();
+    });
+  }
+
   @override
   void initState() {
     loading = true;
+    _radioValue = 1;
     subscribed = new List();
     setReminders();
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
-
-    // FeedItem f = FeedItem("a","b","c","d","e");
-    // feed.add(f);
-
+    var size = MediaQuery.of(context).size;
     return (loading==true)?Scaffold(
       body: Center(
         child: CircularProgressIndicator(),
       ),
     ):Scaffold(
+      body: Column(
+        children: [
+          Row(
+            children: [
+              Spacer(),
+              Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 8, 0),
+                height: size.height*0.06,
+                alignment: AlignmentDirectional.center,
+                child: Row(
+                  children: [
+                    new Radio(
+                      value: 0,
+                      groupValue: _radioValue,
+                      onChanged: _handleRadioValueChange,
+                    ),
+                    new Text(
+                      'Only Mine',
+                      style: new TextStyle(fontSize: 16.0),
+                    ),
+                    new Radio(
+                      value: 1,
+                      groupValue: _radioValue,
+                      onChanged: _handleRadioValueChange,
+                    ),
+                    new Text(
+                      'All Subscribed',
+                      style: new TextStyle(
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    FlatButton(
+                      onPressed: null,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.filter_list,
+                            color: Colors.blue,
+                          ),
+                          Text(
+                            " Filter",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: feed.length,
+              itemBuilder: (context,index) => FeedListItem(feed[index]),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          var newitem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm(widget.userData)));
-          if(newitem!=null)
+          var newItem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm(widget.userData)));
+          if(newItem!=null)
           {
             setState(() {
-              feed.add(newitem);
+              feed.add(newItem);
             });
           }
         },
         child: Icon(
           Icons.add,
         ),
-      ),
-      body: ListView.builder(
-        itemCount: feed.length,
-        itemBuilder: (context,index) => FeedListItem(feed[index]),
       ),
     );
   }

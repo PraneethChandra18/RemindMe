@@ -39,7 +39,6 @@ class _ClubsState extends State<Clubs> {
                   data[i].get('logo'),
                   data[i].get('description'),
               );
-              // print(clubDetails);
               clubs.add(clubDetails);
             }
             return Scaffold(

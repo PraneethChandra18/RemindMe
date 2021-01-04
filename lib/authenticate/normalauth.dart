@@ -1,3 +1,8 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/painting.dart';
 import 'package:scheduler/authenticate/authfunctions.dart';
 import 'package:flutter/material.dart';
@@ -105,7 +110,7 @@ class _SignInState extends State<SignIn> {
                         {
                           setState(() {
                             loading = false;
-                            error = 'Wrong credentials !';
+                            error = 'Error! Try Again';
                           });
                         }
                       },
@@ -214,6 +219,43 @@ class _RegisterState extends State<Register> {
     });
   }
 
+  Future<String> sendDocument() async {
+    File documentToUpload;
+    documentToUpload = await documentSender();
+    if(documentToUpload==null)
+      return null;
+    else
+    {
+      String message = await uploadFile(documentToUpload);
+      if(message==null)
+        return null;
+      else
+      {
+        return message;
+      }
+    }
+  }
+
+  Future<File> documentSender(){
+    return FilePicker.getFile();
+  }
+
+  Future<String> uploadFile(documentFile) async {
+    String imageUrl;
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference reference = FirebaseStorage.instance.ref().child(fileName);
+    await reference.putFile(documentFile).then((storageTaskSnapshot) async {
+      await storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl){
+        imageUrl = downloadUrl;
+        print(downloadUrl);
+      },onError: (err){
+        print(err.toString());
+      });
+    },onError: (err){
+      print("error");
+    });
+    return imageUrl;
+  }
 
   final _formKey = GlobalKey<FormState>();
 
@@ -404,25 +446,67 @@ class _RegisterState extends State<Register> {
                           },
                         ),
                         SizedBox(height: 20.0),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            hintText: "Logo",
-                            labelText: "Logo",
-                            fillColor: Colors.white,
-                            filled: true,
-
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.lightBlueAccent,width: 2.0),
-                              borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                            ),
-                          ),
-                          onChanged: (val){
-                            setState(() {
-                              logo = val;
-                            });
+                        // TextFormField(
+                        //   decoration: InputDecoration(
+                        //     hintText: "Logo",
+                        //     labelText: "Logo",
+                        //     fillColor: Colors.white,
+                        //     filled: true,
+                        //
+                        //     focusedBorder: OutlineInputBorder(
+                        //       borderSide: BorderSide(color: Colors.lightBlueAccent,width: 2.0),
+                        //       borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        //     ),
+                        //   ),
+                        //   onChanged: (val){
+                        //     setState(() {
+                        //       logo = val;
+                        //     });
+                        //   },
+                        // ),
+                        RaisedButton(
+                          color: Colors.blueAccent,
+                          onPressed: () async {
+                            String result = await sendDocument();
+                            if(result!=null)
+                            {
+                              setState(() {
+                                logo = result;
+                                print(logo);
+                              });
+                            }
                           },
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text("Upload Image",style: TextStyle(color: Colors.white),),
+                          ),
                         ),
 
+                        (logo==null)?Container():CachedNetworkImage(
+                          placeholder: (context, url) => Container(
+                            child: CircularProgressIndicator(
+                            ),
+                            width: 50.0,
+                            height: 50.0,
+                            padding: EdgeInsets.all(70.0),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              Material(
+                                child: Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: Center(
+                                    child: Icon(Icons.warning,color: Colors.black,size: 100,),
+                                  ),
+                                ),
+                                clipBehavior: Clip.hardEdge,
+                              ),
+                          imageUrl: logo,
+                          width: 50.0,
+                          height: 50.0,
+                          fit: BoxFit.cover,
+                        ),
+                        SizedBox(height: 20.0),
                         TextFormField(
                           decoration: InputDecoration(
                             hintText: "Description",
@@ -467,7 +551,7 @@ class _RegisterState extends State<Register> {
                             if (result == null) {
                               setState(() {
                                 loading = false;
-                                error = 'Please enter a valid email !';
+                                error = 'Error! Try Again';
                               });
                             }
                             else{

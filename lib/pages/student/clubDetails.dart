@@ -19,13 +19,13 @@ class _ClubDetailsState extends State<ClubDetails> {
 
   User user = FirebaseAuth.instance.currentUser;
 
-  Future<void> addToSubscribed(String clubId) async {
+  Future<void> addToSubscribed() async {
 
     DocumentReference docRef = FirebaseFirestore.instance.collection("Users").doc(user.uid);
     DocumentSnapshot userData = await docRef.get();
 
     List<String> subscribed = userData["subscribed"].cast<String>();
-    subscribed.add(clubId);
+    subscribed.add(widget.club.uid);
 
     await docRef.set({
       'role': userData['role'],
@@ -34,15 +34,60 @@ class _ClubDetailsState extends State<ClubDetails> {
       'subscribed': subscribed,
     }).then((value) => Fluttertoast.showToast(msg: "Subscribed")).catchError((error) => Fluttertoast.showToast(msg: error.toString()));
 
-    setState(() {});
+    checkIfSubscribed();
+  }
+
+  Future<void> removeFromSubscribed() async {
+
+    DocumentReference docRef = FirebaseFirestore.instance.collection("Users").doc(user.uid);
+    DocumentSnapshot userData = await docRef.get();
+
+    List<String> subscribed = userData["subscribed"].cast<String>();
+    subscribed.removeWhere((uid) => uid == widget.club.uid);
+
+    await docRef.set({
+      'role': userData['role'],
+      'uid': userData['uid'],
+      'username': userData['username'],
+      'subscribed': subscribed,
+    }).then((value) => Fluttertoast.showToast(msg: "Subscribed")).catchError((error) => Fluttertoast.showToast(msg: error.toString()));
+
+    checkIfSubscribed();
+  }
+
+  bool isSubscribed;
+  bool loading = false;
+
+  Future checkIfSubscribed() async {
+    DocumentSnapshot userData = await FirebaseFirestore.instance.collection("Users").doc(user.uid).get();
+    List<String> subscribed = userData["subscribed"].cast<String>();
+
+    var check = subscribed.firstWhere((uid) => uid == widget.club.uid, orElse: () => null);
+
+    setState(() {
+      isSubscribed = (check != null ? true : false);
+      loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    loading = true;
+    checkIfSubscribed();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
 
     List<Widget> pages = [Reminders(widget.club),Posts(widget.club)];
+    var size = MediaQuery.of(context).size;
 
-    return Scaffold(
+    return (loading == true) ? Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    ): Scaffold(
       body: DefaultTabController(
         length: 2,
         child: NestedScrollView(
@@ -50,19 +95,36 @@ class _ClubDetailsState extends State<ClubDetails> {
           headerSliverBuilder: (context,isScolled){
             return [
               SliverAppBar(
-                expandedHeight: 200.0,
+                expandedHeight: size.height*0.4,
                 floating: false,
                 pinned: true,
                 actions: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: FlatButton(
-                      onPressed: () async {
-                        await addToSubscribed(widget.club.uid);
+                    child: isSubscribed == false ? FlatButton(
+                      onPressed: (){
+                        setState(() {
+                          loading = true;
+                          addToSubscribed();
+                        });
                       },
                       color: Colors.red,
                       child: Text(
                         "Subscribe",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ):FlatButton(
+                      onPressed: (){
+                        setState(() {
+                          loading = true;
+                          removeFromSubscribed();
+                        });
+                      },
+                      color: Colors.red,
+                      child: Text(
+                        "Unsubscribe",
                         style: TextStyle(
                           color: Colors.white,
                         ),
@@ -72,7 +134,20 @@ class _ClubDetailsState extends State<ClubDetails> {
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   title: Text(widget.club.username),
-                  // background: ,
+                  background: widget.club.logo !=null ? Image.network(widget.club.logo,fit: BoxFit.fill,
+                    loadingBuilder: (BuildContext context,Widget child,ImageChunkEvent loadProgress){
+                      if(loadProgress!=null)
+                        return Container(
+                          width: MediaQuery.of(context).size.width-40,
+                          height: 300,
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      else
+                        return child;
+                    },
+                  ): null,
                 ),
               ),
 
@@ -223,7 +298,6 @@ class _RemindersState extends State<Reminders> {
                   data[i].get('startTime'),
                   data[i].get('endTime')
               );
-              print(rem);
               reminders.add(rem);
             }
             return CustomScrollView(
@@ -283,7 +357,6 @@ class _PostsState extends State<Posts> {
                   data[i].get('details'),
                   data[i].get('link')
               );
-              print(rem);
               feed.add(rem);
             }
             return CustomScrollView(
