@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:scheduler/pages/forms/FeedForm.dart';
 import 'package:scheduler/models/models.dart';
-import 'package:scheduler/pages/student/CompleteFeed.dart';
+import 'package:scheduler/pages/common/CompleteFeed.dart';
 
 class ClubFeed extends StatefulWidget {
 
@@ -11,20 +14,166 @@ class ClubFeed extends StatefulWidget {
   _ClubFeedState createState() => _ClubFeedState();
 }
 
+bool loading = true;
 class _ClubFeedState extends State<ClubFeed> {
 
-  List<FeedItem> feed = [];
+  User user = FirebaseAuth.instance.currentUser;
+  List<FeedItem> feed = new List();
+  List<dynamic> subscribed;
+
+  void setFeed() async{
+
+    if(_radioValue==1) {
+      QuerySnapshot clubList = await FirebaseFirestore.instance.collection("Clubs").get();
+      subscribed = clubList.docs;
+
+      for(int i=0;i<subscribed.length;i++)
+      {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i]["uid"].toString()).collection("feed").get();
+        List<QueryDocumentSnapshot> data = querySnapshot.docs;
+        for(int j=0;j<data.length;j++)
+        {
+          FeedItem f = FeedItem(
+              data[j].get('title'),
+              data[j].get('by'),
+              data[j].get('poster'),
+              data[j].get('details'),
+              data[j].get('link')
+          );
+
+          feed.add(f);
+        }
+      }
+    }
+    else {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(user.uid).collection("feed").get();
+      List<QueryDocumentSnapshot> data = querySnapshot.docs;
+      for(int j=0;j<data.length;j++)
+      {
+        FeedItem f = FeedItem(
+            data[j].get('title'),
+            data[j].get('by'),
+            data[j].get('poster'),
+            data[j].get('details'),
+            data[j].get('link')
+        );
+
+        feed.add(f);
+      }
+
+    }
+
+    setState(() {
+      loading = false;
+    });
+  }
+
+  int _radioValue;
+
+  void _handleRadioValueChange(int value) {
+    setState(() {
+      _radioValue = value;
+      loading = true;
+      feed.clear();
+      subscribed.clear();
+      setFeed();
+    });
+  }
+
+  @override
+  void initState() {
+    loading = true;
+    _radioValue = 1;
+    subscribed = new List();
+    setFeed();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
 
-    // FeedItem f = FeedItem("a","b","c","d","e");
-    // feed.add(f);
-
-    return Scaffold(
-      body: ListView.builder(
-        itemCount: feed.length,
-        itemBuilder: (context,index) => FeedListItem(feed[index]),
+    var size = MediaQuery.of(context).size;
+    return (loading==true)?Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    ):Scaffold(
+      body: Column(
+        children: [
+          Row(
+            children: [
+              Spacer(),
+              Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 8, 0),
+                height: size.height*0.06,
+                alignment: AlignmentDirectional.center,
+                child: Row(
+                  children: [
+                    new Radio(
+                      value: 0,
+                      groupValue: _radioValue,
+                      onChanged: _handleRadioValueChange,
+                    ),
+                    new Text(
+                      'Only Mine',
+                      style: new TextStyle(fontSize: 16.0),
+                    ),
+                    new Radio(
+                      value: 1,
+                      groupValue: _radioValue,
+                      onChanged: _handleRadioValueChange,
+                    ),
+                    new Text(
+                      'All Subscribed',
+                      style: new TextStyle(
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    FlatButton(
+                      onPressed: null,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.filter_list,
+                            color: Colors.blue,
+                          ),
+                          Text(
+                            " Filter",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: feed.length,
+              itemBuilder: (context,index) => FeedListItem(feed[index]),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          var newItem = await Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedForm(widget.userData)));
+          if(newItem!=null)
+          {
+            setState(() {
+              feed.add(newItem);
+            });
+          }
+        },
+        child: Icon(
+          Icons.add,
+        ),
       ),
     );
   }

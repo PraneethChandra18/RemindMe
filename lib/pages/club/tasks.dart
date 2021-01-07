@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scheduler/models/models.dart';
-import 'package:scheduler/pages/student/forms.dart';
+import 'package:scheduler/pages/forms/forms.dart';
 
 class ClubTasks extends StatefulWidget {
 
@@ -20,13 +20,34 @@ class _ClubTasksState extends State<ClubTasks> {
   User user = FirebaseAuth.instance.currentUser;
 
   List<dynamic> subscribed;
+
   void setReminders() async{
-    QuerySnapshot clubList = await FirebaseFirestore.instance.collection("Clubs").get();
-    subscribed = clubList.docs;
-    remainders.clear();
-    for(int i=0;i<subscribed.length;i++)
-    {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i]["uid"].toString()).collection("reminders").get();
+
+    if(_radioValue==1) {
+      QuerySnapshot clubList = await FirebaseFirestore.instance.collection("Clubs").get();
+      subscribed = clubList.docs;
+
+      for(int i=0;i<subscribed.length;i++)
+      {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i]["uid"].toString()).collection("reminders").get();
+        List<QueryDocumentSnapshot> data = querySnapshot.docs;
+        for(int j=0;j<data.length;j++)
+        {
+          Reminder rem = Reminder(
+              data[j].get('title'),
+              data[j].get('subtitle'),
+              data[j].get('details'),
+              data[j].get('by'),
+              data[j].get('date'),
+              data[j].get('startTime'),
+              data[j].get('endTime')
+          );
+          remainders.add(rem);
+        }
+      }
+    }
+    else {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(user.uid).collection("reminders").get();
       List<QueryDocumentSnapshot> data = querySnapshot.docs;
       for(int j=0;j<data.length;j++)
       {
@@ -42,14 +63,29 @@ class _ClubTasksState extends State<ClubTasks> {
         remainders.add(rem);
       }
     }
+
+
     setState(() {
       loading = false;
+    });
+  }
+
+  int _radioValue;
+
+  void _handleRadioValueChange(int value) {
+    setState(() {
+      _radioValue = value;
+      loading = true;
+      remainders.clear();
+      subscribed.clear();
+      setReminders();
     });
   }
 
   @override
   void initState() {
     loading = true;
+    _radioValue = 1;
     subscribed = new List();
     setReminders();
     super.initState();
@@ -74,24 +110,48 @@ class _ClubTasksState extends State<ClubTasks> {
                 padding: EdgeInsets.fromLTRB(0, 0, 8, 0),
                 height: size.height*0.06,
                 alignment: AlignmentDirectional.center,
-                child: FlatButton(
-                  onPressed: null,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.filter_list,
-                        color: Colors.blue,
+                child: Row(
+                  children: [
+                    new Radio(
+                      value: 0,
+                      groupValue: _radioValue,
+                      onChanged: _handleRadioValueChange,
+                    ),
+                    new Text(
+                      'Only Mine',
+                      style: new TextStyle(fontSize: 16.0),
+                    ),
+                    new Radio(
+                      value: 1,
+                      groupValue: _radioValue,
+                      onChanged: _handleRadioValueChange,
+                    ),
+                    new Text(
+                      'All Subscribed',
+                      style: new TextStyle(
+                        fontSize: 16.0,
                       ),
-                      Text(
-                        " Filter",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    FlatButton(
+                      onPressed: null,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.filter_list,
+                            color: Colors.blue,
+                          ),
+                          Text(
+                            " Filter",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],

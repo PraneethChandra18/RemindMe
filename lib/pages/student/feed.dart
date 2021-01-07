@@ -2,9 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:scheduler/models/models.dart';
-import 'package:scheduler/pages/student/CompleteFeed.dart';
-
-import 'FeedForm.dart';
+import 'package:scheduler/pages/common/CompleteFeed.dart';
+import '../forms/FeedForm.dart';
 
 class StudentFeed extends StatefulWidget {
 
@@ -14,13 +13,14 @@ class StudentFeed extends StatefulWidget {
   @override
   _StudentFeedState createState() => _StudentFeedState();
 }
+
 bool loading = true;
 class _StudentFeedState extends State<StudentFeed> {
   User user = FirebaseAuth.instance.currentUser;
   List<FeedItem> feed = new List();
   List<dynamic> subscribed;
 
-  void setReminders() async{
+  void setFeed() async{
 
     if(_radioValue==1) {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
@@ -61,7 +61,7 @@ class _StudentFeedState extends State<StudentFeed> {
       loading = true;
       feed.clear();
       subscribed.clear();
-      setReminders();
+      setFeed();
     });
   }
 
@@ -70,9 +70,10 @@ class _StudentFeedState extends State<StudentFeed> {
     loading = true;
     _radioValue = 1;
     subscribed = new List();
-    setReminders();
+    setFeed();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;

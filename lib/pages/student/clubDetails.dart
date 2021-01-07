@@ -147,7 +147,7 @@ class _ClubDetailsState extends State<ClubDetails> {
                       else
                         return child;
                     },
-                  ): null,
+                  ): Container(),
                 ),
               ),
 

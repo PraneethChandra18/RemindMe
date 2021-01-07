@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:scheduler/models/models.dart';
-import 'package:scheduler/pages/student/forms.dart';
+import 'package:scheduler/pages/forms/forms.dart';
 
 class StudentTasks extends StatefulWidget {
 
