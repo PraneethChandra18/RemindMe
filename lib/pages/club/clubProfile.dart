@@ -1,11 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:scheduler/authenticate/authfunctions.dart';
 import 'package:scheduler/models/models.dart';
-import 'package:scheduler/pages/club/feed.dart';
-import 'package:scheduler/pages/club/tasks.dart';
-import 'package:provider/provider.dart';
 
 
 class ClubProfile extends StatefulWidget {
