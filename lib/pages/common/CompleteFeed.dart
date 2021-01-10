@@ -50,12 +50,6 @@ class _CompleteFeed extends State<CompleteFeed>{
                       ListTile(
                         title: Text(feed.title,style: TextStyle(fontSize: 18),),
                         subtitle: Text(feed.by,style: TextStyle(fontSize: 15),),
-                        trailing: IconButton(
-                          icon: Icon(Icons.share),
-                          onPressed: (){
-                            return null;
-                          },
-                        ),
                       ),
                       Container(
                         //  height: MediaQuery.of(context).size.width-40,

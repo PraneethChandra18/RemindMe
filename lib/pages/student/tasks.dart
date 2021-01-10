@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:scheduler/models/models.dart';
+import 'package:scheduler/pages/common/CompleteTask.dart';
 import 'package:scheduler/pages/forms/forms.dart';
 
 class StudentTasks extends StatefulWidget {
@@ -31,7 +32,7 @@ class _StudentTasksState extends State<StudentTasks> {
 
     for(int i=0;i<subscribed.length;i++)
     {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i].toString()).collection("reminders").get();
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("data").doc(subscribed[i].toString()).collection("reminders").orderBy('date').get();
       List<QueryDocumentSnapshot> data = querySnapshot.docs;
       for(int j=0;j<data.length;j++)
       {
@@ -199,8 +200,11 @@ class _ReminderListItemState extends State<ReminderListItem> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: GestureDetector(
         onLongPress: (){print("Long pressed!");},
+
         child: ListTile(
-          onTap: (){print('Tapped');},
+          onTap: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteTask(widget.remainder)));
+          },
           title: Text(widget.remainder.title),
           trailing: Icon(
             Icons.notifications_active,
