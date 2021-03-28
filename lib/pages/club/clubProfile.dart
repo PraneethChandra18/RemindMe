@@ -123,13 +123,13 @@ class ClubDescription extends StatelessWidget {
             ),
 
             SizedBox(height: 20.0),
-            Text(
+            clubDetails.description != null ? Text(
               clubDetails.description,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 15,
               ),
-            ),
+            ) : Container(),
           ],
         ),
       ),

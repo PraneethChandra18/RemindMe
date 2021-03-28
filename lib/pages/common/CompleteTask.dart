@@ -15,18 +15,7 @@ class CompleteTask extends StatefulWidget{
 class _CompleteTask extends State<CompleteTask>{
   Reminder reminder;
   _CompleteTask(this.reminder);
-  Future<void> _launchInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(
-        url,
-        forceSafariVC: false,
-        forceWebView: false,
-        headers: <String, String>{'my_header_key': 'my_header_value'},
-      );
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

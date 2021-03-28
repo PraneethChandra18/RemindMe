@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/painting.dart';
 import 'package:scheduler/authenticate/authfunctions.dart';
@@ -22,6 +23,8 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
 
   final AuthService _auth = AuthService();
+  final FireStoreService _fss = FireStoreService();
+
   bool loading = false;
 
   String email='';
@@ -113,6 +116,11 @@ class _SignInState extends State<SignIn> {
                             error = 'Error! Try Again';
                           });
                         }
+                        else {
+                          String token = await FirebaseMessaging.instance.getToken();
+                          await _fss.saveTokens(token:token);
+                        }
+
                       },
                       child: Text(
                         'signIn',
@@ -556,9 +564,13 @@ class _RegisterState extends State<Register> {
                             }
                             else{
                               List<String> subscribed = new List();
-                              await _fss.saveUserDetails(user: result, username: username, role: role, logo: logo, subscribed: subscribed);
+                              List<String> subscribers = new List();
+                              await _fss.saveUserDetails(user: result, username: username, role: role, logo: logo, subscribed: subscribed, subscribers: subscribers);
 
                               if(role=="Club") await _fss.saveClubDetails(user: result, mailId: email, username: username, role: role, logo: logo, description: description);
+
+                              String token = await FirebaseMessaging.instance.getToken();
+                              await _fss.saveTokens(token:token);
                             }
                           }
                         }

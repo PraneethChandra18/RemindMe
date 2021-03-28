@@ -140,7 +140,7 @@ class _StudentTasksState extends State<StudentTasks> {
             ],
           ),
           Expanded(
-              child: ReminderItems(remainders),
+              child: ReminderItems(remainders, _radioValue),
           ),
         ],
       ),
@@ -163,7 +163,8 @@ class _StudentTasksState extends State<StudentTasks> {
 class ReminderItems extends StatefulWidget {
 
   final List<Reminder> remainders;
-  ReminderItems(this.remainders);
+  final filterValue;
+  ReminderItems(this.remainders, this.filterValue);
 
   @override
   _ReminderItemsState createState() => _ReminderItemsState();
@@ -176,7 +177,7 @@ class _ReminderItemsState extends State<ReminderItems> {
 
     return ListView.builder(
       itemCount: widget.remainders.length,
-      itemBuilder: (context,index) => ReminderListItem(widget.remainders[index]),
+      itemBuilder: (context,index) => ReminderListItem(widget.remainders[index], widget.filterValue),
     );
   }
 }
@@ -184,7 +185,8 @@ class _ReminderItemsState extends State<ReminderItems> {
 class ReminderListItem extends StatefulWidget {
 
   final Reminder remainder;
-  ReminderListItem(this.remainder);
+  final filterValue;
+  ReminderListItem(this.remainder, this.filterValue);
 
   @override
   _ReminderListItemState createState() => _ReminderListItemState();
@@ -206,10 +208,27 @@ class _ReminderListItemState extends State<ReminderListItem> {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteTask(widget.remainder)));
           },
           title: Text(widget.remainder.title),
-          trailing: Icon(
-            Icons.notifications_active,
-            color: Colors.red,
-          ),
+          trailing: widget.filterValue == 0 ? Wrap(
+            children: [
+              OutlineButton(
+                onPressed: (){},
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.blue,
+                ),
+                shape: CircleBorder(),
+              ),
+
+              OutlineButton(
+                onPressed: (){},
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
+                shape: CircleBorder(),
+              ),
+            ],
+          ) : SizedBox(width: 0,),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

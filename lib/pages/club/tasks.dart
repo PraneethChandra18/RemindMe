@@ -128,7 +128,7 @@ class _ClubTasksState extends State<ClubTasks> {
                       onChanged: _handleRadioValueChange,
                     ),
                     new Text(
-                      'All Subscribed',
+                      'All Clubs',
                       style: new TextStyle(
                         fontSize: 16.0,
                       ),
@@ -158,7 +158,7 @@ class _ClubTasksState extends State<ClubTasks> {
             ],
           ),
           Expanded(
-            child: ReminderItems(remainders),
+            child: ReminderItems(remainders, _radioValue),
           ),
         ],
       ),
@@ -182,7 +182,8 @@ class _ClubTasksState extends State<ClubTasks> {
 class ReminderItems extends StatefulWidget {
 
   final List<Reminder> remainders;
-  ReminderItems(this.remainders);
+  final filterValue;
+  ReminderItems(this.remainders, this.filterValue);
 
   @override
   _ReminderItemsState createState() => _ReminderItemsState();
@@ -196,7 +197,7 @@ class _ReminderItemsState extends State<ReminderItems> {
 
     return ListView.builder(
       itemCount: widget.remainders.length,
-      itemBuilder: (context,index) => RemainderListItem(widget.remainders[index]),
+      itemBuilder: (context,index) => RemainderListItem(widget.remainders[index], widget.filterValue),
     );
   }
 }
@@ -204,13 +205,19 @@ class _ReminderItemsState extends State<ReminderItems> {
 class RemainderListItem extends StatefulWidget {
 
   final Reminder remainder;
-  RemainderListItem(this.remainder);
+  final filterValue;
+  RemainderListItem(this.remainder, this.filterValue);
 
   @override
   _RemainderListItemState createState() => _RemainderListItemState();
 }
 
 class _RemainderListItemState extends State<RemainderListItem> {
+
+  Future deleteReminder(docId) async {
+    return FirebaseFirestore.instance.collection("data").doc().collection('reminders').doc(docId).delete();
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -225,10 +232,27 @@ class _RemainderListItemState extends State<RemainderListItem> {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>CompleteTask(widget.remainder)));
           },
           title: Text(widget.remainder.title),
-          trailing: Icon(
-            Icons.notifications_active,
-            color: Colors.red,
-          ),
+          trailing: widget.filterValue == 0 ? Wrap(
+            children: [
+              OutlineButton(
+                onPressed: () {},
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.blue,
+                ),
+                shape: CircleBorder(),
+              ),
+
+              OutlineButton(
+                onPressed: (){},
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
+                shape: CircleBorder(),
+              ),
+            ],
+          ) : SizedBox(width: 0,),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

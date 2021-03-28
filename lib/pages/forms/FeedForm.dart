@@ -40,6 +40,7 @@ class _FeedForm extends State<FeedForm>{
     await reminder.add({
       'title': data.title,
       'by': data.by,
+      'senderId' : widget.userData['uid'],
       'details': data.description,
       'link': data.link,
       'poster': data.poster

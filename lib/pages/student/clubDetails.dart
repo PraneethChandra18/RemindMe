@@ -24,14 +24,29 @@ class _ClubDetailsState extends State<ClubDetails> {
     DocumentReference docRef = FirebaseFirestore.instance.collection("Users").doc(user.uid);
     DocumentSnapshot userData = await docRef.get();
 
+    DocumentReference clubDocRef = FirebaseFirestore.instance.collection("Users").doc(widget.club.uid);
+    DocumentSnapshot clubUserData = await clubDocRef.get();
+
     List<String> subscribed = userData["subscribed"].cast<String>();
     subscribed.add(widget.club.uid);
+
+    List<String> subscribers = clubUserData["subscribers"].cast<String>();
+    subscribers.add(user.uid);
 
     await docRef.set({
       'role': userData['role'],
       'uid': userData['uid'],
       'username': userData['username'],
       'subscribed': subscribed,
+      'subscribers': userData['subscribers'],
+    });
+
+    await clubDocRef.set({
+      'logo': clubUserData['logo'],
+      'role': clubUserData['role'],
+      'uid': clubUserData['uid'],
+      'username': clubUserData['username'],
+      'subscribers':subscribers
     }).then((value) => Fluttertoast.showToast(msg: "Subscribed")).catchError((error) => Fluttertoast.showToast(msg: error.toString()));
 
     checkIfSubscribed();
@@ -242,13 +257,13 @@ class Description extends StatelessWidget {
             ),
 
             SizedBox(height: 20.0),
-            Text(
+            widget.club.description != null ? Text(
               widget.club.description,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 15,
               ),
-            ),
+            ) : Container(),
           ],
         ),
       ),
@@ -305,7 +320,7 @@ class _RemindersState extends State<Reminders> {
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
-                    return ReminderListItem(reminders[index]);
+                    return ReminderListItem(reminders[index],1);
                   },
                   childCount: reminders.length,
                 ),
