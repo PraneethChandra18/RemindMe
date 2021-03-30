@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -27,7 +28,10 @@ Future onDidReceiveLocalNotification(
 
 Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
   if (message.data!=null) {
-    // print(message.data.toString());
+    await Firebase.initializeApp();
+    FirebaseAuth auth = FirebaseAuth.instance;
+    List<String> myList = message.data['subscribers'].toString().split(",");
+    print(auth.currentUser.uid);
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
@@ -37,6 +41,7 @@ Future<void> myBackgroundMessageHandler(RemoteMessage message) async {
         showWhen: false
     );
     const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    if(myList.contains(auth.currentUser.uid))
     flutterLocalNotificationsPlugin.show(0, message.notification.title, message.notification.body, platformChannelSpecifics);
   }
 }
@@ -61,7 +66,11 @@ Future<void> main() async {
           priority: Priority.high,
           showWhen: false
       );
+      FirebaseAuth auth = FirebaseAuth.instance;
+      List<String> myList = message.data['subscribers'].toString().split(",");
+      print(auth.currentUser.uid);
       const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+      if(myList.contains(auth.currentUser.uid))
       flutterLocalNotificationsPlugin.show(0, message.notification.title, message.notification.body, platformChannelSpecifics);
     }
   });

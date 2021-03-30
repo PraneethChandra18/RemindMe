@@ -234,22 +234,22 @@ class _RemainderListItemState extends State<RemainderListItem> {
           title: Text(widget.remainder.title),
           trailing: widget.filterValue == 0 ? Wrap(
             children: [
-              OutlineButton(
-                onPressed: () {},
+              GestureDetector(
+                onTap: () {},
                 child: Icon(
                   Icons.edit,
                   color: Colors.blue,
                 ),
-                shape: CircleBorder(),
               ),
-
-              OutlineButton(
-                onPressed: (){},
+              SizedBox(
+                width: 20,
+              ),
+              GestureDetector(
+                onTap: (){},
                 child: Icon(
                   Icons.delete,
                   color: Colors.red,
                 ),
-                shape: CircleBorder(),
               ),
             ],
           ) : SizedBox(width: 0,),
@@ -261,17 +261,20 @@ class _RemainderListItemState extends State<RemainderListItem> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 5),
-              Row(
-                children: [
-                  Text("On "),
-                  Text(widget.remainder.date),
-                  SizedBox(width: 10),
-                  Text("At "),
-                  Text(widget.remainder.startTime),
-                  Text(" to "),
-                  Text(widget.remainder.endTime),
-                ],
-              ),
+              Container(
+                child: Row(
+                  children: [
+                    Text("On "),
+                    Text(widget.remainder.date),
+                    SizedBox(width: 10),
+                    Text("At "),
+                    Text(widget.remainder.startTime),
+                    Text(" to "),
+                    Text(widget.remainder.endTime),
+                  ],
+                ),
+                width: MediaQuery.of(context).size.width -20,
+              )
             ],
           ),
           isThreeLine: true,
